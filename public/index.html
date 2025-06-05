@@ -1,0 +1,329 @@
+z<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People Counter - AI-Powered People Counting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <style>
+        .loading-right {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
+            color: white;
+        }
+        .loading-right.active {
+            display: flex;
+            align-items: center;
+        }
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Add smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Enhanced navigation styles */
+        .nav-link {
+            position: relative;
+            padding-bottom: 2px;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Card hover effects */
+        .feature-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Button animations */
+        .animated-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .animated-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .animated-button::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: all 0.5s ease;
+        }
+
+        .animated-button:hover::after {
+            left: 100%;
+        }
+
+        /* Hero section enhancement */
+        .hero-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #2563eb 100%);
+            animation: gradientShift 15s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 text-white fixed w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="/" class="text-xl font-bold hover:text-blue-400 transition-colors">People Counter</a>
+                <div class="space-x-6">
+                    <a href="/" class="nav-link hover:text-blue-400 transition-colors">Home</a>
+                    <a href="/about.html" class="nav-link hover:text-blue-400 transition-colors">About</a>
+                    <a href="/counting.html" class="nav-link hover:text-blue-400 transition-colors">Counter</a>
+                    <a href="/contact.html" class="nav-link hover:text-blue-400 transition-colors">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-20 pb-32 hero-gradient text-white" data-aos="fade-up">
+        <div class="container mx-auto px-4 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div data-aos="fade-right" data-aos-delay="200">
+                    <h1 class="text-5xl font-bold mb-6">AI-Powered People Counting System</h1>
+                    <p class="text-xl mb-8 opacity-90">Accurately count and track people in real-time using advanced YOLOv8 object detection technology.</p>
+                    <a href="/counting.html" class="animated-button bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all inline-block">
+                        Try it Now
+                    </a>
+                </div>
+                <div class="relative" data-aos="fade-left" data-aos-delay="400">
+                    <img src="img/demo.png" alt="People Counting Demo" class="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                    <div class="absolute -bottom-4 -right-4 bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold transform hover:scale-110 transition-transform">
+                        Powered by YOLOv8
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12" data-aos="fade-up">Key Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 transform transition-transform hover:rotate-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Real-time Detection</h3>
+                    <p class="text-gray-600">Process live video streams and detect people in real-time with high accuracy.</p>
+                </div>
+                <div class="feature-card bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 transform transition-transform hover:rotate-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Detailed Analytics</h3>
+                    <p class="text-gray-600">Get precise counts and detailed information about detected people.</p>
+                </div>
+                <div class="feature-card bg-white p-6 rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="600">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 transform transition-transform hover:rotate-12">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Multiple Sources</h3>
+                    <p class="text-gray-600">Support for both video file uploads and YouTube live streams.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-16" data-aos="fade-up">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+            <p class="text-xl mb-8 opacity-90">Try our people counting system now and experience the power of AI-driven detection.</p>
+            <a href="/counting.html" class="animated-button bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all inline-block">
+                Start Counting
+            </a>
+        </div>
+    </section>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto text-center">
+            <p class="opacity-90">© 2025 People Counting | All rights reserved.<br>Developed by Baver Koca.</p>
+        </div>
+    </footer>
+    <div id="loading" class="loading-right">
+        <div class="spinner"></div>
+        <div>
+            <p class="text-white text-sm" id="loadingDetails">Processing...</p>
+        </div>
+    </div>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">People Counting System</h1>
+        
+        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+            <div id="connectionStatus" class="mb-4 text-center">
+                <span class="px-3 py-1 rounded-full text-sm font-semibold" id="statusBadge">
+                    Connecting...
+                </span>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Choose Input Source</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-all"
+                         onclick="showUploadSection()">
+                        <h3 class="text-xl font-medium mb-2">Upload Video</h3>
+                        <p class="text-gray-600">Upload a video file from your device</p>
+                    </div>
+                    <div class="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-all"
+                         onclick="showYoutubeSection()">
+                        <h3 class="text-xl font-medium mb-2">YouTube Live URL</h3>
+                        <p class="text-gray-600">Process a YouTube live stream</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="uploadSection" class="hidden">
+                <h3 class="text-xl font-semibold mb-4 text-gray-700">Upload Video</h3>
+                <form id="uploadForm" class="space-y-4">
+                    <div class="flex items-center justify-center w-full">
+                        <label class="flex flex-col w-full h-32 border-4 border-dashed hover:bg-gray-100 hover:border-gray-300">
+                            <div class="flex flex-col items-center justify-center pt-7">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                                </svg>
+                                <p class="pt-1 text-sm tracking-wider text-gray-400 group-hover:text-gray-600">
+                                    Select a video</p>
+                            </div>
+                            <input type="file" class="opacity-0" accept="video/*" id="videoFile" />
+                        </label>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                        Process Video
+                    </button>
+                </form>
+            </div>
+
+            <div id="youtubeSection" class="hidden">
+                <h3 class="text-xl font-semibold mb-4 text-gray-700">YouTube Live URL</h3>
+                <form id="youtubeForm" class="space-y-4">
+                    <div>
+                        <input type="url" id="youtubeUrl" placeholder="Enter YouTube URL" 
+                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
+                        Process Stream
+                    </button>
+                </form>
+            </div>
+
+            <div id="resultSection" class="hidden mt-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-700">Results</h3>
+                    <button id="stopButton" 
+                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 002 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 002 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        Stop & Clear
+                    </button>
+                </div>
+                <div class="relative">
+                    <div id="peopleCount" class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg z-10">
+                        People Count: 0
+                    </div>
+                    <div class="relative w-full rounded-lg overflow-hidden" style="background: #000;">
+                        <canvas id="videoCanvas" class="w-full"></canvas>
+                        <img id="frameImage" class="hidden">
+                    </div>
+                </div>
+                <div class="mt-4 bg-gray-50 p-4 rounded-lg">
+                    <h4 class="text-lg font-semibold mb-2">Detection Details</h4>
+                    <div id="detectionDetails" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Detection boxes will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Initialize AOS animations
+        AOS.init({
+            duration: 1000,
+            once: true,
+            offset: 100
+        });
+
+        // Add scroll event listener for navbar
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg');
+                nav.style.backgroundColor = 'rgba(31, 41, 55, 0.95)';
+            } else {
+                nav.classList.remove('shadow-lg');
+                nav.style.backgroundColor = 'rgb(31, 41, 55)';
+            }
+        });
+    </script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

@@ -1,0 +1,7 @@
+ultralytics>=8.0.0
+torch>=2.1.0,<2.7.0
+torchvision>=0.16.0
+numpy>=1.22.2
+opencv-python>=4.6.0
+yt-dlp>=2024.3.10
+python-dotenv==1.0.0

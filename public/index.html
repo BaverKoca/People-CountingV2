@@ -1,4 +1,4 @@
-z<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,10 +6,12 @@ z<!DOCTYPE html>
     <title>People Counter - AI-Powered People Counting System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     <style>
+        body { font-family: 'Inter', Arial, sans-serif; }
         .loading-right {
             position: fixed;
             top: 20px;
@@ -109,14 +111,23 @@ z<!DOCTYPE html>
         /* Hero section enhancement */
         .hero-gradient {
             background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #2563eb 100%);
-            animation: gradientShift 15s ease infinite;
+            position: relative;
+            overflow: hidden;
         }
-
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .hero-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 60% 40%, rgba(255,255,255,0.08) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+            animation: heroGlow 8s ease-in-out infinite alternate;
         }
+        @keyframes heroGlow {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        .hero-gradient > * { position: relative; z-index: 1; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -140,14 +151,14 @@ z<!DOCTYPE html>
         <div class="container mx-auto px-4 py-16">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <div data-aos="fade-right" data-aos-delay="200">
-                    <h1 class="text-5xl font-bold mb-6">AI-Powered People Counting System</h1>
+                    <h1 class="text-5xl font-extrabold mb-6">AI-Powered People Counting System</h1>
                     <p class="text-xl mb-8 opacity-90">Accurately count and track people in real-time using advanced YOLOv8 object detection technology.</p>
-                    <a href="/counting.html" class="animated-button bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-all inline-block">
+                    <a href="/counting.html" class="animated-button px-8 py-3 rounded-lg font-semibold transition-all inline-block">
                         Try it Now
                     </a>
                 </div>
-                <div class="relative" data-aos="fade-left" data-aos-delay="400">
-                    <img src="img/demo.png" alt="People Counting Demo" class="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300">
+                <div class="relative flex justify-center items-center" data-aos="fade-left" data-aos-delay="400">
+                    <img src="images/indeximages.png" alt="People Counting Demo" class="rounded-lg shadow-2xl transform hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/400x250?text=Demo+Image';">
                     <div class="absolute -bottom-4 -right-4 bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold transform hover:scale-110 transition-transform">
                         Powered by YOLOv8
                     </div>
@@ -206,102 +217,13 @@ z<!DOCTYPE html>
 
     <footer class="bg-gray-800 text-white py-8">
         <div class="container mx-auto text-center">
-            <p class="opacity-90">© 2025 People Counting | All rights reserved.<br>Developed by Baver Koca.</p>
+            <p class="opacity-90">© 2025 People Counter | All rights reserved.<br>Developed by Baver Koca.</p>
         </div>
     </footer>
     <div id="loading" class="loading-right">
         <div class="spinner"></div>
         <div>
             <p class="text-white text-sm" id="loadingDetails">Processing...</p>
-        </div>
-    </div>
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center text-gray-800 mb-8">People Counting System</h1>
-        
-        <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-            <div id="connectionStatus" class="mb-4 text-center">
-                <span class="px-3 py-1 rounded-full text-sm font-semibold" id="statusBadge">
-                    Connecting...
-                </span>
-            </div>
-
-            <div class="mb-8">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Choose Input Source</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-all"
-                         onclick="showUploadSection()">
-                        <h3 class="text-xl font-medium mb-2">Upload Video</h3>
-                        <p class="text-gray-600">Upload a video file from your device</p>
-                    </div>
-                    <div class="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer transition-all"
-                         onclick="showYoutubeSection()">
-                        <h3 class="text-xl font-medium mb-2">YouTube Live URL</h3>
-                        <p class="text-gray-600">Process a YouTube live stream</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="uploadSection" class="hidden">
-                <h3 class="text-xl font-semibold mb-4 text-gray-700">Upload Video</h3>
-                <form id="uploadForm" class="space-y-4">
-                    <div class="flex items-center justify-center w-full">
-                        <label class="flex flex-col w-full h-32 border-4 border-dashed hover:bg-gray-100 hover:border-gray-300">
-                            <div class="flex flex-col items-center justify-center pt-7">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 group-hover:text-gray-600" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                                </svg>
-                                <p class="pt-1 text-sm tracking-wider text-gray-400 group-hover:text-gray-600">
-                                    Select a video</p>
-                            </div>
-                            <input type="file" class="opacity-0" accept="video/*" id="videoFile" />
-                        </label>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
-                        Process Video
-                    </button>
-                </form>
-            </div>
-
-            <div id="youtubeSection" class="hidden">
-                <h3 class="text-xl font-semibold mb-4 text-gray-700">YouTube Live URL</h3>
-                <form id="youtubeForm" class="space-y-4">
-                    <div>
-                        <input type="url" id="youtubeUrl" placeholder="Enter YouTube URL" 
-                               class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors">
-                        Process Stream
-                    </button>
-                </form>
-            </div>
-
-            <div id="resultSection" class="hidden mt-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-gray-700">Results</h3>
-                    <button id="stopButton" 
-                            class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 002 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 002 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                        </svg>
-                        Stop & Clear
-                    </button>
-                </div>
-                <div class="relative">
-                    <div id="peopleCount" class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg z-10">
-                        People Count: 0
-                    </div>
-                    <div class="relative w-full rounded-lg overflow-hidden" style="background: #000;">
-                        <canvas id="videoCanvas" class="w-full"></canvas>
-                        <img id="frameImage" class="hidden">
-                    </div>
-                </div>
-                <div class="mt-4 bg-gray-50 p-4 rounded-lg">
-                    <h4 class="text-lg font-semibold mb-2">Detection Details</h4>
-                    <div id="detectionDetails" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Detection boxes will be added here dynamically -->
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <script>
@@ -326,4 +248,4 @@ z<!DOCTYPE html>
     </script>
     <script src="js/main.js"></script>
 </body>
-</html> 
+</html>

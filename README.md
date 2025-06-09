@@ -4,6 +4,17 @@ A robust, real-time people counting system powered by **YOLOv8x** object detecti
 
 ---
 
+## 🖼️ Screenshots
+![Image](https://github.com/user-attachments/assets/a4f4f05f-59fe-4239-971c-9a545a4b568e)
+![Image](https://github.com/user-attachments/assets/082910f6-a35e-4b12-982f-f7db9a63b7da)
+![Image](https://github.com/user-attachments/assets/eb6b180b-f84e-4b0d-b4a2-cdd36226f254)
+![Image](https://github.com/user-attachments/assets/70ce7c28-5c6a-406d-afb4-ba366585eb13)
+![Image](https://github.com/user-attachments/assets/ca53a75a-12f4-4bb4-a251-192a73146da4)
+![Image](https://github.com/user-attachments/assets/febf058b-0d56-4d2f-a5a6-fcab81e229c2)
+![Image](https://github.com/user-attachments/assets/961420af-71b9-489b-81f9-1560e75272df)
+
+---
+
 ## 🚀 Features
 
 - **Real-time people detection & counting**

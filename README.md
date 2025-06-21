@@ -39,7 +39,7 @@ A robust, real-time people counting system powered by **YOLOv8x** object detecti
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/BaverKoca/People-CountingV2.git
-cd People-CountingV
+cd People-CountingV2
 ```
 
 ### 2. Install Python dependencies
